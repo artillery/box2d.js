@@ -21,6 +21,7 @@
 
 #include <Box2D/Collision/b2Collision.h>
 #include <Box2D/Common/b2GrowableStack.h>
+#include <Box2D/Dynamics/b2Fixture.h>
 
 #define b2_nullNode (-1)
 
@@ -34,6 +35,11 @@ struct b2TreeNode
 
 	/// Enlarged AABB
 	b2AABB aabb;
+
+	// For leaves, the category and mask bits of the fixture.
+	// For internal nodes, the bitwise or of the respective fields in the
+	// two children.
+	b2Filter filter;
 
 	void* userData;
 
@@ -68,10 +74,15 @@ public:
 	~b2DynamicTree();
 
 	/// Create a proxy. Provide a tight fitting AABB and a userData pointer.
-	int32 CreateProxy(const b2AABB& aabb, void* userData);
+	int32 CreateProxy(const b2AABB& aabb, const b2Filter& filter, void* userData);
 
 	/// Destroy a proxy. This asserts if the id is invalid.
 	void DestroyProxy(int32 proxyId);
+
+	// Update the filter bits for a proxy. If the filter bits have changed, then the proxy is
+	// removed from the tree and re-inserted.
+	/// @return true if the proxy was re-inserted.
+	bool FilterProxy(int32 proxyId, const b2Filter& filter);
 
 	/// Move a proxy with a swepted AABB. If the proxy has moved outside of its fattened AABB,
 	/// then the proxy is removed from the tree and re-inserted. Otherwise
@@ -86,10 +97,13 @@ public:
 	/// Get the fat AABB for a proxy.
 	const b2AABB& GetFatAABB(int32 proxyId) const;
 
+	// Get the filter bits for a proxy.
+	void GetFilterBits(int32 proxyId, b2Filter* filter) const;
+
 	/// Query an AABB for overlapping proxies. The callback class
 	/// is called for each proxy that overlaps the supplied AABB.
 	template <typename T>
-	void Query(T* callback, const b2AABB& aabb) const;
+	void Query(T* callback, const b2AABB& aabb, const b2Filter& filter) const;
 
 	/// Ray-cast against the proxies in the tree. This relies on the callback
 	/// to perform a exact ray-cast in the case were the proxy contains a shape.
@@ -160,8 +174,15 @@ inline const b2AABB& b2DynamicTree::GetFatAABB(int32 proxyId) const
 	return m_nodes[proxyId].aabb;
 }
 
+inline void b2DynamicTree::GetFilterBits(int32 proxyId, b2Filter* filter) const
+{
+	b2Assert(0 <= proxyId && proxyId < m_nodeCapacity);
+	*filter = m_nodes[proxyId].filter;
+}
+
+
 template <typename T>
-inline void b2DynamicTree::Query(T* callback, const b2AABB& aabb) const
+inline void b2DynamicTree::Query(T* callback, const b2AABB& aabb, const b2Filter& filter) const
 {
 	b2GrowableStack<int32, 256> stack;
 	stack.Push(m_root);
@@ -175,6 +196,11 @@ inline void b2DynamicTree::Query(T* callback, const b2AABB& aabb) const
 		}
 
 		const b2TreeNode* node = m_nodes + nodeId;
+
+		if ((node->filter.categoryBits & filter.maskBits) == 0 || (node->filter.maskBits & filter.categoryBits) == 0)
+		{
+			continue;
+		}
 
 		if (b2TestOverlap(node->aabb, aabb))
 		{

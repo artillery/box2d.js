@@ -105,7 +105,7 @@ void b2DynamicTree::FreeNode(int32 nodeId)
 // Create a proxy in the tree as a leaf node. We return the index
 // of the node instead of a pointer so that we can grow
 // the node pool.
-int32 b2DynamicTree::CreateProxy(const b2AABB& aabb, void* userData)
+int32 b2DynamicTree::CreateProxy(const b2AABB& aabb, const b2Filter& filter, void* userData)
 {
 	int32 proxyId = AllocateNode();
 
@@ -113,6 +113,9 @@ int32 b2DynamicTree::CreateProxy(const b2AABB& aabb, void* userData)
 	b2Vec2 r(b2_aabbExtension, b2_aabbExtension);
 	m_nodes[proxyId].aabb.lowerBound = aabb.lowerBound - r;
 	m_nodes[proxyId].aabb.upperBound = aabb.upperBound + r;
+
+	m_nodes[proxyId].filter = filter;
+
 	m_nodes[proxyId].userData = userData;
 	m_nodes[proxyId].height = 0;
 
@@ -128,6 +131,23 @@ void b2DynamicTree::DestroyProxy(int32 proxyId)
 
 	RemoveLeaf(proxyId);
 	FreeNode(proxyId);
+}
+
+bool b2DynamicTree::FilterProxy(int32 proxyId, const b2Filter& filter)
+{
+	b2Assert(0 <= proxyId && proxyId < m_nodeCapacity);
+
+	b2Assert(m_nodes[proxyId].IsLeaf());
+
+	if (m_nodes[proxyId].filter.categoryBits == filter.categoryBits && m_nodes[proxyId].filter.maskBits == filter.maskBits)
+	{
+		return false;
+	}
+
+	RemoveLeaf(proxyId);
+	m_nodes[proxyId].filter = filter;
+	InsertLeaf(proxyId);
+	return true;
 }
 
 bool b2DynamicTree::MoveProxy(int32 proxyId, const b2AABB& aabb, const b2Vec2& displacement)
@@ -266,6 +286,8 @@ void b2DynamicTree::InsertLeaf(int32 leaf)
 	m_nodes[newParent].parent = oldParent;
 	m_nodes[newParent].userData = NULL;
 	m_nodes[newParent].aabb.Combine(leafAABB, m_nodes[sibling].aabb);
+	m_nodes[newParent].filter.Combine(m_nodes[leaf].filter, m_nodes[sibling].filter);
+
 	m_nodes[newParent].height = m_nodes[sibling].height + 1;
 
 	if (oldParent != b2_nullNode)
@@ -309,6 +331,7 @@ void b2DynamicTree::InsertLeaf(int32 leaf)
 
 		m_nodes[index].height = 1 + b2Max(m_nodes[child1].height, m_nodes[child2].height);
 		m_nodes[index].aabb.Combine(m_nodes[child1].aabb, m_nodes[child2].aabb);
+		m_nodes[index].filter.Combine(m_nodes[child1].filter, m_nodes[child2].filter);
 
 		index = m_nodes[index].parent;
 	}
@@ -361,6 +384,7 @@ void b2DynamicTree::RemoveLeaf(int32 leaf)
 
 			m_nodes[index].aabb.Combine(m_nodes[child1].aabb, m_nodes[child2].aabb);
 			m_nodes[index].height = 1 + b2Max(m_nodes[child1].height, m_nodes[child2].height);
+			m_nodes[index].filter.Combine(m_nodes[child1].filter, m_nodes[child2].filter);
 
 			index = m_nodes[index].parent;
 		}
@@ -373,6 +397,14 @@ void b2DynamicTree::RemoveLeaf(int32 leaf)
 	}
 
 	//Validate();
+}
+
+// Used by Balance to merge AABBs, filter masks, and heights.
+void CombineChildren(b2TreeNode* A, b2TreeNode* B, b2TreeNode* C)
+{
+	A->aabb.Combine(B->aabb, C->aabb);
+	A->filter.Combine(B->filter, C->filter);
+	A->height = 1 + b2Max(B->height, C->height);
 }
 
 // Perform a left or right rotation if node A is imbalanced.
@@ -436,22 +468,16 @@ int32 b2DynamicTree::Balance(int32 iA)
 			C->child2 = iF;
 			A->child2 = iG;
 			G->parent = iA;
-			A->aabb.Combine(B->aabb, G->aabb);
-			C->aabb.Combine(A->aabb, F->aabb);
-
-			A->height = 1 + b2Max(B->height, G->height);
-			C->height = 1 + b2Max(A->height, F->height);
+			CombineChildren(A, B, G);
+			CombineChildren(C, A, F);
 		}
 		else
 		{
 			C->child2 = iG;
 			A->child2 = iF;
 			F->parent = iA;
-			A->aabb.Combine(B->aabb, F->aabb);
-			C->aabb.Combine(A->aabb, G->aabb);
-
-			A->height = 1 + b2Max(B->height, F->height);
-			C->height = 1 + b2Max(A->height, G->height);
+			CombineChildren(A, B, F);
+			CombineChildren(C, A, G);
 		}
 
 		return iC;
@@ -496,22 +522,16 @@ int32 b2DynamicTree::Balance(int32 iA)
 			B->child2 = iD;
 			A->child1 = iE;
 			E->parent = iA;
-			A->aabb.Combine(C->aabb, E->aabb);
-			B->aabb.Combine(A->aabb, D->aabb);
-
-			A->height = 1 + b2Max(C->height, E->height);
-			B->height = 1 + b2Max(A->height, D->height);
+			CombineChildren(A, C, E);
+			CombineChildren(B, A, D);
 		}
 		else
 		{
 			B->child2 = iE;
 			A->child1 = iD;
 			D->parent = iA;
-			A->aabb.Combine(C->aabb, D->aabb);
-			B->aabb.Combine(A->aabb, E->aabb);
-
-			A->height = 1 + b2Max(C->height, D->height);
-			B->height = 1 + b2Max(A->height, E->height);
+			CombineChildren(A, C, D);
+			CombineChildren(B, A, E);
 		}
 
 		return iB;
@@ -649,6 +669,12 @@ void b2DynamicTree::ValidateMetrics(int32 index) const
 	b2Assert(aabb.lowerBound == node->aabb.lowerBound);
 	b2Assert(aabb.upperBound == node->aabb.upperBound);
 
+	b2Filter filter;
+	filter.Combine(m_nodes[child1].filter, m_nodes[child2].filter);
+
+	b2Assert(filter.categoryBits == node->filter.categoryBits);
+	b2Assert(filter.maskBits == node->filter.maskBits);
+
 	ValidateMetrics(child1);
 	ValidateMetrics(child2);
 }
@@ -754,6 +780,8 @@ void b2DynamicTree::RebuildBottomUp()
 		parent->child2 = index2;
 		parent->height = 1 + b2Max(child1->height, child2->height);
 		parent->aabb.Combine(child1->aabb, child2->aabb);
+		parent->filter.Combine(child1->filter, child2->filter);
+
 		parent->parent = b2_nullNode;
 
 		child1->parent = parentIndex;
