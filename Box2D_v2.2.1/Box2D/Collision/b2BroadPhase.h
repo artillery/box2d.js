@@ -50,7 +50,7 @@ public:
 
 	/// Create a proxy with an initial AABB. Pairs are not reported until
 	/// UpdatePairs is called.
-	int32 CreateProxy(const b2AABB& aabb, void* userData);
+	int32 CreateProxy(const b2AABB& aabb, const b2Filter& filter, void* userData);
 
 	/// Destroy a proxy. It is up to the client to remove any pairs.
 	void DestroyProxy(int32 proxyId);
@@ -60,7 +60,7 @@ public:
 	void MoveProxy(int32 proxyId, const b2AABB& aabb, const b2Vec2& displacement);
 
 	/// Call to trigger a re-processing of it's pairs on the next call to UpdatePairs.
-	void TouchProxy(int32 proxyId);
+	void TouchProxy(int32 proxyId, const b2Filter& filter);
 
 	/// Get the fat AABB for a proxy.
 	const b2AABB& GetFatAABB(int32 proxyId) const;
@@ -81,7 +81,7 @@ public:
 	/// Query an AABB for overlapping proxies. The callback class
 	/// is called for each proxy that overlaps the supplied AABB.
 	template <typename T>
-	void Query(T* callback, const b2AABB& aabb) const;
+	void Query(T* callback, const b2AABB& aabb, const b2Filter& filter) const;
 
 	/// Ray-cast against the proxies in the tree. This relies on the callback
 	/// to perform a exact ray-cast in the case were the proxy contains a shape.
@@ -185,6 +185,8 @@ void b2BroadPhase::UpdatePairs(T* callback)
 	// Reset pair buffer
 	m_pairCount = 0;
 
+	b2Filter filter;
+
 	// Perform tree queries for all moving proxies.
 	for (int32 i = 0; i < m_moveCount; ++i)
 	{
@@ -197,9 +199,10 @@ void b2BroadPhase::UpdatePairs(T* callback)
 		// We have to query the tree with the fat AABB so that
 		// we don't fail to create a pair that may touch later.
 		const b2AABB& fatAABB = m_tree.GetFatAABB(m_queryProxyId);
+		m_tree.GetFilterBits(m_queryProxyId, &filter);
 
 		// Query tree, create pairs and add them pair buffer.
-		m_tree.Query(this, fatAABB);
+		m_tree.Query(this, fatAABB, filter);
 	}
 
 	// Reset move buffer
@@ -236,9 +239,9 @@ void b2BroadPhase::UpdatePairs(T* callback)
 }
 
 template <typename T>
-inline void b2BroadPhase::Query(T* callback, const b2AABB& aabb) const
+inline void b2BroadPhase::Query(T* callback, const b2AABB& aabb, const b2Filter& filter) const
 {
-	m_tree.Query(callback, aabb);
+	m_tree.Query(callback, aabb, filter);
 }
 
 template <typename T>
