@@ -89,11 +89,6 @@ void b2World::SetDestructionListener(b2DestructionListener* listener)
 	m_destructionListener = listener;
 }
 
-void b2World::SetContactFilter(b2ContactFilter* filter)
-{
-	m_contactManager.m_contactFilter = filter;
-}
-
 void b2World::SetContactListener(b2ContactListener* listener)
 {
 	m_contactManager.m_contactListener = listener;
