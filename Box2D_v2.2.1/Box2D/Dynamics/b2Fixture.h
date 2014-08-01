@@ -35,7 +35,6 @@ struct b2Filter
 	{
 		categoryBits = 0x0001;
 		maskBits = 0xFFFF;
-		groupIndex = 0;
 	}
 
 	/// The collision category bits. Normally you would just set one bit.
@@ -45,10 +44,7 @@ struct b2Filter
 	/// shape would accept for collision.
 	uint16 maskBits;
 
-	/// Collision groups allow a certain group of objects to never collide (negative)
-	/// or always collide (positive). Zero means no collision group. Non-zero group
-	/// filtering always wins against the mask bits.
-	int16 groupIndex;
+	void Combine(const b2Filter& filter1, const b2Filter& filter2);
 };
 
 /// A fixture definition is used to create a fixture. This class defines an
@@ -237,6 +233,12 @@ protected:
 
 	void* m_userData;
 };
+
+inline void b2Filter::Combine(const b2Filter& filter1, const b2Filter& filter2)
+{
+	categoryBits = filter1.categoryBits | filter2.categoryBits;
+	maskBits = filter1.maskBits | filter2.maskBits;
+}
 
 inline b2Shape::Type b2Fixture::GetType() const
 {

@@ -39,9 +39,9 @@ b2BroadPhase::~b2BroadPhase()
 	b2Free(m_pairBuffer);
 }
 
-int32 b2BroadPhase::CreateProxy(const b2AABB& aabb, void* userData)
+int32 b2BroadPhase::CreateProxy(const b2AABB& aabb, const b2Filter& filter, void* userData)
 {
-	int32 proxyId = m_tree.CreateProxy(aabb, userData);
+	int32 proxyId = m_tree.CreateProxy(aabb, filter, userData);
 	++m_proxyCount;
 	BufferMove(proxyId);
 	return proxyId;
@@ -63,9 +63,13 @@ void b2BroadPhase::MoveProxy(int32 proxyId, const b2AABB& aabb, const b2Vec2& di
 	}
 }
 
-void b2BroadPhase::TouchProxy(int32 proxyId)
+void b2BroadPhase::TouchProxy(int32 proxyId, const b2Filter& filter)
 {
-	BufferMove(proxyId);
+	bool buffer = m_tree.FilterProxy(proxyId, filter);
+	if (buffer)
+	{
+		BufferMove(proxyId);
+	}
 }
 
 void b2BroadPhase::BufferMove(int32 proxyId)

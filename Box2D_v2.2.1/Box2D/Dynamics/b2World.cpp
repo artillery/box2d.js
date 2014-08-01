@@ -89,11 +89,6 @@ void b2World::SetDestructionListener(b2DestructionListener* listener)
 	m_destructionListener = listener;
 }
 
-void b2World::SetContactFilter(b2ContactFilter* filter)
-{
-	m_contactManager.m_contactFilter = filter;
-}
-
 void b2World::SetContactListener(b2ContactListener* listener)
 {
 	m_contactManager.m_contactListener = listener;
@@ -988,7 +983,11 @@ void b2World::QueryAABB(b2QueryCallback* callback, const b2AABB& aabb) const
 	b2WorldQueryWrapper wrapper;
 	wrapper.broadPhase = &m_contactManager.m_broadPhase;
 	wrapper.callback = callback;
-	m_contactManager.m_broadPhase.Query(&wrapper, aabb);
+	b2Filter filter;
+	// TODO: Allow QueryAABB to accept a filter parameter.
+	filter.categoryBits = 0xffff;
+	filter.maskBits = 0xffff;
+	m_contactManager.m_broadPhase.Query(&wrapper, aabb, filter);
 }
 
 struct b2WorldRayCastWrapper

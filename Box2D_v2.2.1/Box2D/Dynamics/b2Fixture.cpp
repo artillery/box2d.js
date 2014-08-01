@@ -130,7 +130,7 @@ void b2Fixture::CreateProxies(b2BroadPhase* broadPhase, const b2Transform& xf)
 	{
 		b2FixtureProxy* proxy = m_proxies + i;
 		m_shape->ComputeAABB(&proxy->aabb, xf, i);
-		proxy->proxyId = broadPhase->CreateProxy(proxy->aabb, proxy);
+		proxy->proxyId = broadPhase->CreateProxy(proxy->aabb, m_filter, proxy);
 		proxy->fixture = this;
 		proxy->childIndex = i;
 	}
@@ -213,7 +213,7 @@ void b2Fixture::Refilter()
 	b2BroadPhase* broadPhase = &world->m_contactManager.m_broadPhase;
 	for (int32 i = 0; i < m_proxyCount; ++i)
 	{
-		broadPhase->TouchProxy(m_proxies[i].proxyId);
+		broadPhase->TouchProxy(m_proxies[i].proxyId, m_filter);
 	}
 }
 
@@ -235,7 +235,6 @@ void b2Fixture::Dump(int32 bodyIndex)
 	b2Log("    fd.isSensor = bool(%d);\n", m_isSensor);
 	b2Log("    fd.filter.categoryBits = uint16(%d);\n", m_filter.categoryBits);
 	b2Log("    fd.filter.maskBits = uint16(%d);\n", m_filter.maskBits);
-	b2Log("    fd.filter.groupIndex = int16(%d);\n", m_filter.groupIndex);
 
 	switch (m_shape->m_type)
 	{
