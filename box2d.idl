@@ -284,7 +284,6 @@ interface b2Filter {
   void b2Filter();
   attribute unsigned short categoryBits;
   attribute unsigned short maskBits;
-  attribute short groupIndex;
 };
 
 interface b2AABB {
