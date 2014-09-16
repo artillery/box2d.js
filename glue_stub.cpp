@@ -24,4 +24,6 @@ public:
   }
 };
 
+#ifndef EXCLUDE_BOX2D_GLUE_CPP
 #include "box2d_glue.cpp"
+#endif
