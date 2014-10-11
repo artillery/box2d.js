@@ -23,7 +23,14 @@
 #include <Box2D/Collision/b2Collision.h>
 #include <Box2D/Collision/Shapes/b2Shape.h>
 
-typedef void* b2UserData;
+#include "entity.h"
+
+// ADDED FOR ATLAS
+struct b2UserData {
+  NullableEntityID id;
+  unsigned char fixtureType;
+  int32_t baId;
+};
 
 class b2BlockAllocator;
 class b2Body;
@@ -57,7 +64,7 @@ struct b2FixtureDef
 	b2FixtureDef()
 	{
 		shape = NULL;
-		userData = NULL;
+		// userData = NULL; DELETED FOR ATLAS
 		friction = 0.2f;
 		restitution = 0.0f;
 		density = 0.0f;
@@ -145,10 +152,10 @@ public:
 
 	/// Get the user data that was assigned in the fixture definition. Use this to
 	/// store your application specific data.
-	b2UserData GetUserData() const;
+	const b2UserData& GetUserData() const;
 
 	/// Set the user data. Use this to store your application specific data.
-	void SetUserData(b2UserData data);
+	void SetUserData(const b2UserData& data);
 
 	/// Test a point for containment in this fixture.
 	/// @param p a point in world coordinates.
@@ -264,12 +271,12 @@ inline const b2Filter& b2Fixture::GetFilterData() const
 	return m_filter;
 }
 
-inline b2UserData b2Fixture::GetUserData() const
+inline const b2UserData& b2Fixture::GetUserData() const
 {
 	return m_userData;
 }
 
-inline void b2Fixture::SetUserData(b2UserData data)
+inline void b2Fixture::SetUserData(const b2UserData& data)
 {
 	m_userData = data;
 }
