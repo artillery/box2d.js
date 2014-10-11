@@ -23,6 +23,8 @@
 #include <Box2D/Collision/b2Collision.h>
 #include <Box2D/Collision/Shapes/b2Shape.h>
 
+typedef void* b2UserData;
+
 class b2BlockAllocator;
 class b2Body;
 class b2BroadPhase;
@@ -67,7 +69,7 @@ struct b2FixtureDef
 	const b2Shape* shape;
 
 	/// Use this to store application specific fixture data.
-	void* userData;
+	b2UserData userData;
 
 	/// The friction coefficient, usually in the range [0,1].
 	float32 friction;
@@ -143,10 +145,10 @@ public:
 
 	/// Get the user data that was assigned in the fixture definition. Use this to
 	/// store your application specific data.
-	void* GetUserData() const;
+	b2UserData GetUserData() const;
 
 	/// Set the user data. Use this to store your application specific data.
-	void SetUserData(void* data);
+	void SetUserData(b2UserData data);
 
 	/// Test a point for containment in this fixture.
 	/// @param p a point in world coordinates.
@@ -228,7 +230,7 @@ protected:
 
 	bool m_isSensor;
 
-	void* m_userData;
+	b2UserData m_userData;
 };
 
 inline void b2Filter::Combine(const b2Filter& filter1, const b2Filter& filter2)
@@ -262,12 +264,12 @@ inline const b2Filter& b2Fixture::GetFilterData() const
 	return m_filter;
 }
 
-inline void* b2Fixture::GetUserData() const
+inline b2UserData b2Fixture::GetUserData() const
 {
 	return m_userData;
 }
 
-inline void b2Fixture::SetUserData(void* data)
+inline void b2Fixture::SetUserData(b2UserData data)
 {
 	m_userData = data;
 }
