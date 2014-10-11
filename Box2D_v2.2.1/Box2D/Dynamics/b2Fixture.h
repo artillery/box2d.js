@@ -23,7 +23,16 @@
 #include <Box2D/Collision/b2Collision.h>
 #include <Box2D/Collision/Shapes/b2Shape.h>
 
-typedef void* b2UserData;
+#ifdef ATLAS
+  #include "entity.h"
+
+  struct b2UserData {
+    EntityId id;
+    unsigned char fixtureType;
+  };
+#else
+  typedef void* b2UserData;
+#endif
 
 class b2BlockAllocator;
 class b2Body;
