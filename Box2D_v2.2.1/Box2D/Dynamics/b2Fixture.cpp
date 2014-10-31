@@ -29,7 +29,7 @@
 
 b2Fixture::b2Fixture()
 {
-	m_userData = NULL;
+	// m_userData = NULL; DELETED FOR ATLAS
 	m_body = NULL;
 	m_next = NULL;
 	m_proxies = NULL;
