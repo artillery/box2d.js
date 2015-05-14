@@ -452,7 +452,6 @@ interface b2ContactFilter {
 
 [JSImplementation=b2ContactFilter]
 interface JSContactFilter {
-  void JSContactListener();
   boolean ShouldCollide(b2Fixture fixtureA, b2Fixture fixtureB);
 };
 
