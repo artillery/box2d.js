@@ -1,6 +1,12 @@
 
 project(box2d)
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  add_compile_options(
+    -emit-llvm -std=c++11 -stdlib=libc++ -Werror -Wall -Wno-unused-variable
+  )
+endif()
+
 set(BOX2D_SRC Box2D_v2.2.1/Box2D)
 
 add_library(box2d OBJECT
@@ -50,7 +56,6 @@ add_library(box2d OBJECT
             ${BOX2D_SRC}/Dynamics/Joints/b2WheelJoint.cpp
             ${BOX2D_SRC}/Rope/b2Rope.cpp)
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ -DATLAS -O3")
 target_include_directories(box2d PUBLIC
   Box2D_v2.2.1
   ${COMMON_INCLUDE_PATHS}
