@@ -1,10 +1,15 @@
 
 project(box2d)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR
+    ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   add_compile_options(
-    -emit-llvm -std=c++11 -stdlib=libc++ -Werror -Wall -Wno-unused-variable
+    -std=c++11 -stdlib=libc++ -Werror -Wall -Wno-unused-variable
   )
+endif()
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  add_compile_options(-Wno-warn-absolute-paths)
 endif()
 
 set(BOX2D_SRC Box2D_v2.2.1/Box2D)
