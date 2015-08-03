@@ -18,6 +18,8 @@
 
 #include <Box2D/Common/b2Timer.h>
 
+#include <emscripten.h>
+
 #if defined(_WIN32)
 
 float64 b2Timer::s_invFrequency = 0.0f;
@@ -94,7 +96,7 @@ void b2Timer::Reset()
 
 float32 b2Timer::GetMilliseconds() const
 {
-	return 0.0f;
+	return emscripten_get_now();
 }
 
 #endif
