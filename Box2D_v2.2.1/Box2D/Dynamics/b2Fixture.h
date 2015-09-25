@@ -42,16 +42,16 @@ struct b2Filter
 {
 	b2Filter()
 	{
-		categoryBits = 0x0001;
-		maskBits = 0xFFFF;
+		categoryBits = 0x00000001;
+		maskBits = 0xFFFFFFFF;
 	}
 
 	/// The collision category bits. Normally you would just set one bit.
-	uint16 categoryBits;
+	uint32 categoryBits;
 
 	/// The collision mask bits. This states the categories that this
 	/// shape would accept for collision.
-	uint16 maskBits;
+	uint32 maskBits;
 
 	void Combine(const b2Filter& filter1, const b2Filter& filter2);
 };

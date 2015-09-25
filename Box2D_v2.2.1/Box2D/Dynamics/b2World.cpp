@@ -834,7 +834,7 @@ void b2World::SolveTOI(const b2TimeStep& step)
 					{
 						continue;
 					}
-					
+
 					// Add the other body to the island.
 					other->m_flags |= b2Body::e_islandFlag;
 
@@ -918,7 +918,7 @@ void b2World::Step(float32 dt, int32 velocityIterations, int32 positionIteration
 	step.dtRatio = m_inv_dt0 * dt;
 
 	step.warmStarting = m_warmStarting;
-	
+
 	// Update contacts. This is where some contacts are destroyed.
 	{
 		b2Timer timer;
@@ -985,8 +985,8 @@ void b2World::QueryAABB(b2QueryCallback* callback, const b2AABB& aabb) const
 	wrapper.callback = callback;
 	b2Filter filter;
 	// TODO: Allow QueryAABB to accept a filter parameter.
-	filter.categoryBits = 0xffff;
-	filter.maskBits = 0xffff;
+	filter.categoryBits = 0xffffffff;
+	filter.maskBits = 0xffffffff;
 	m_contactManager.m_broadPhase.Query(&wrapper, aabb, filter);
 }
 
@@ -1084,7 +1084,7 @@ void b2World::DrawShape(b2Fixture* fixture, const b2Transform& xf, const b2Color
 			m_debugDraw->DrawSolidPolygon(vertices, vertexCount, color);
 		}
 		break;
-            
+
     default:
         break;
 	}
