@@ -289,8 +289,8 @@ interface b2BodyDef {
 
 interface b2Filter {
   void b2Filter();
-  attribute unsigned short categoryBits;
-  attribute unsigned short maskBits;
+  attribute unsigned long categoryBits;
+  attribute unsigned long maskBits;
 };
 
 interface b2AABB {
