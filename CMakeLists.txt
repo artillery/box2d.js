@@ -9,7 +9,12 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  add_compile_options(-Wno-warn-absolute-paths)
+  execute_process(COMMAND /bin/bash -c "emcc -v 2> /dev/null | head -1 | sed 's/.* //'" OUTPUT_VARIABLE EMCC_VERSION)
+  message("EMCC_VERSION ${EMCC_VERSION}")
+  if (${EMCC_VERSION} MATCHES "1.34.0")
+    add_compile_options(-Wno-warn-absolute-paths)
+  endif()
+  add_compile_options(-s USE_SDL=2)
 endif()
 
 set(BOX2D_SRC Box2D_v2.2.1/Box2D)
