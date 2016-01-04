@@ -893,11 +893,14 @@ void b2World::Step(float32 dt, int32 velocityIterations, int32 positionIteration
 {
 	b2Timer stepTimer;
 
+        m_profile.newcontacts = 0;
 	// If new fixtures were added, we need to find the new contacts.
 	if (m_flags & e_newFixture)
 	{
+		b2Timer timer;
 		m_contactManager.FindNewContacts();
 		m_flags &= ~e_newFixture;
+		m_profile.newcontacts = timer.GetMilliseconds();
 	}
 
 	m_flags |= e_locked;
@@ -949,12 +952,15 @@ void b2World::Step(float32 dt, int32 velocityIterations, int32 positionIteration
 
 	if (m_flags & e_clearForces)
 	{
+		b2Timer timer;
 		ClearForces();
+                m_profile.newcontacts += timer.GetMilliseconds();
 	}
 
 	m_flags &= ~e_locked;
 
-	m_profile.step = stepTimer.GetMilliseconds();
+        auto a = stepTimer.GetMilliseconds();
+	m_profile.step = a;
 }
 
 void b2World::ClearForces()

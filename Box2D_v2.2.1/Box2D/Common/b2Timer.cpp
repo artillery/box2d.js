@@ -84,17 +84,23 @@ float32 b2Timer::GetMilliseconds() const
 
 #else
 
+// Atlas-specific hack: use our SDL timer.
+
+#include "platform.h"
+
 b2Timer::b2Timer()
 {
+  Reset();
 }
 
 void b2Timer::Reset()
 {
+  m_start = SDLTimer::nowHighRes();
 }
 
 float32 b2Timer::GetMilliseconds() const
 {
-	return 0.0f;
+  return SDLTimer::nowHighRes() - m_start;
 }
 
 #endif

@@ -32,6 +32,7 @@ struct b2Profile
 	float32 solvePosition;
 	float32 broadphase;
 	float32 solveTOI;
+  float32 newcontacts;
 };
 
 /// This is an internal structure.

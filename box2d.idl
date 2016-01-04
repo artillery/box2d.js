@@ -723,6 +723,7 @@ interface b2Profile {
   attribute float solvePosition;
   attribute float broadphase;
   attribute float solveTOI;
+  attribute float newcontacts;
 };
 
 interface b2PulleyJoint {

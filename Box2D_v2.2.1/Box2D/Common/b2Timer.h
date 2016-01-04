@@ -41,5 +41,7 @@ private:
 #elif defined(__linux__) || defined (__APPLE__)
 	unsigned long m_start_sec;
 	unsigned long m_start_msec;
+#else
+        double m_start;
 #endif
 };
