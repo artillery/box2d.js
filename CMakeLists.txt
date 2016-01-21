@@ -4,7 +4,15 @@ project(box2d)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR
     ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   add_compile_options(
-    -std=c++11 -stdlib=libc++ -Werror -Wall -Wno-unused-variable
+    -std=c++11 -Werror -Wall -Wno-unused-variable
+  )
+endif()
+
+# -stdlib=libc++ is the default on Emscripten, and it doesn't even expect to
+# see the argument, which causes problems with ccache.
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  add_compile_options(
+    -stdlib=libc++
   )
 endif()
 
