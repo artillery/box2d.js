@@ -29,6 +29,7 @@
 struct b2UserData {
   NullableEntityID id;
   unsigned char fixtureType;
+  unsigned char teamId;
   int32_t baId;
 };
 
