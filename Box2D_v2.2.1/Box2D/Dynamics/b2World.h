@@ -52,11 +52,6 @@ public:
 	/// remain in scope.
 	void SetDestructionListener(b2DestructionListener* listener);
 
-	/// Register a contact filter to provide specific control over collision.
-	/// Otherwise the default filter is used (b2_defaultFilter). The listener is
-	/// owned by you and must remain in scope. 
-	void SetContactFilter(b2ContactFilter* filter);
-
 	/// Register a contact event listener. The listener is owned by you and must
 	/// remain in scope.
 	void SetContactListener(b2ContactListener* listener);

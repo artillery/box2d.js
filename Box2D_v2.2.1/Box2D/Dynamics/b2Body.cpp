@@ -424,7 +424,10 @@ void b2Body::SetTransform(const b2Vec2& position, float32 angle)
 		f->Synchronize(broadPhase, m_xf, m_xf);
 	}
 
-	m_world->m_contactManager.FindNewContacts();
+	// Skip discovering contacts upon direct SetTransform.  Instead, rely on any new
+	// contacts being discovered during the next physics Step.  This gives better CPU
+	// performance for bulk updating the positions of bodies.
+	// m_world->m_contactManager.FindNewContacts();
 }
 
 void b2Body::SynchronizeFixtures()

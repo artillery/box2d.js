@@ -21,7 +21,15 @@ interface b2Contact {
 interface b2ContactListener {
 };
 
-[JSImplementation="b2ContactListener"]
+interface b2UserData {
+  void b2UserData();
+  [Value] attribute NullableEntityID id;
+  attribute octet fixtureType;
+  attribute octet teamId;
+  attribute long baId;
+};
+
+[JSImplementation=b2ContactListener]
 interface JSContactListener {
   void JSContactListener();
 
@@ -99,7 +107,7 @@ interface b2Shape {
 interface b2FixtureDef {
   void b2FixtureDef();
   [Const] attribute b2Shape shape;
-  attribute any userData;
+  [Value] attribute b2UserData userData;
   attribute float friction;
   attribute float restitution;
   attribute float density;
@@ -117,8 +125,8 @@ interface b2Fixture {
   void Refilter();
   b2Body GetBody();
   b2Fixture GetNext();
-  any GetUserData();
-  void SetUserData(any data);
+  [Const, Ref] b2UserData GetUserData();
+  void SetUserData([Const, Ref] b2UserData data);
   boolean TestPoint([Ref] b2Vec2 p);
   boolean RayCast(b2RayCastOutput output, [Ref] b2RayCastInput input, long childIndex);
   void GetMassData(b2MassData massData);
@@ -144,7 +152,7 @@ interface b2Transform {
 
 interface b2RayCastCallback {
 };
-[JSImplementation="b2RayCastCallback"]
+[JSImplementation=b2RayCastCallback]
 interface JSRayCastCallback {
   void JSRayCastCallback();
   float ReportFixture(b2Fixture fixture, [Const, Ref] b2Vec2 point,
@@ -153,7 +161,7 @@ interface JSRayCastCallback {
 
 interface b2QueryCallback {
 };
-[JSImplementation="b2QueryCallback"]
+[JSImplementation=b2QueryCallback]
 interface JSQueryCallback {
   void JSQueryCallback();
   boolean ReportFixture(b2Fixture fixture);
@@ -171,9 +179,9 @@ interface b2Vec2 {
   void b2Vec2(float x, float y);
   void SetZero();
   void Set(float x, float y);
-  [Operator="+="] void op_add([Const, Ref] b2Vec2 v);
-  [Operator="-="] void op_sub([Const, Ref] b2Vec2 v);
-  [Operator="*="] void op_mul(float s);
+  //[Operator="+="] void op_add([Const, Ref] b2Vec2 v);
+  //[Operator="-="] void op_sub([Const, Ref] b2Vec2 v);
+  //[Operator="*="] void op_mul(float s);
   float Length();
   float LengthSquared();
   float Normalize();
@@ -188,9 +196,9 @@ interface b2Vec3 {
   void b2Vec3(float x, float y, float z);
   void SetZero();
   void Set(float x, float y, float z);
-  [Operator="+="] void op_add([Const, Ref] b2Vec3 v);
-  [Operator="-="] void op_sub([Const, Ref] b2Vec3 v);
-  [Operator="*="] void op_mul(float s);
+  //[Operator="+="] void op_add([Const, Ref] b2Vec3 v);
+  //[Operator="-="] void op_sub([Const, Ref] b2Vec3 v);
+  //[Operator="*="] void op_mul(float s);
   attribute float x;
   attribute float y;
   attribute float z;
@@ -282,9 +290,8 @@ interface b2BodyDef {
 
 interface b2Filter {
   void b2Filter();
-  attribute unsigned short categoryBits;
-  attribute unsigned short maskBits;
-  attribute short groupIndex;
+  attribute unsigned long categoryBits;
+  attribute unsigned long maskBits;
 };
 
 interface b2AABB {
@@ -444,9 +451,8 @@ interface b2ContactFeature {
 interface b2ContactFilter {
 };
 
-[JSImplementation="b2ContactFilter"]
+[JSImplementation=b2ContactFilter]
 interface JSContactFilter {
-  void JSContactListener();
   boolean ShouldCollide(b2Fixture fixtureA, b2Fixture fixtureB);
 };
 
@@ -468,7 +474,7 @@ interface b2DestructionListener {
 interface b2DestructionListenerWrapper {
 };
 
-[JSImplementation="b2DestructionListenerWrapper"]
+[JSImplementation=b2DestructionListenerWrapper]
 interface JSDestructionListener {
   void JSDestructionListener();
   // These methods map the overloaded methods from b2DestructionListener onto differently-named
@@ -517,7 +523,7 @@ interface b2Draw {
   void ClearFlags(unsigned long flags);
 };
 
-[JSImplementation="b2Draw"]
+[JSImplementation=b2Draw]
 interface JSDraw {
   void JSDraw();
   void DrawPolygon([Const] b2Vec2 vertices, long vertexCount, [Const, Ref] b2Color color);
