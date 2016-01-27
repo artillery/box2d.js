@@ -25,6 +25,7 @@ interface b2UserData {
   void b2UserData();
   [Value] attribute NullableEntityID id;
   attribute octet fixtureType;
+  attribute octet teamId;
   attribute long baId;
 };
 
