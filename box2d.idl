@@ -45,7 +45,7 @@ interface JSContactListener {
 interface b2World {
   void b2World([Const, Ref] b2Vec2 gravity);
   void SetDestructionListener(b2DestructionListener listener);
-  void SetContactListener(JSContactListener listener);
+  void SetContactListener(b2ContactListener listener);
   void SetDebugDraw(b2Draw debugDraw);
   b2Body CreateBody([Const] b2BodyDef def);
   void DestroyBody(b2Body body);
