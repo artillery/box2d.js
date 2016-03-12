@@ -26,6 +26,8 @@
 #include <cstddef>
 #include <limits>
 
+#include "trig.h"
+
 /// This function is used to ensure that a floating point number is
 /// not a NaN or infinity.
 inline bool b2IsValid(float32 x)
@@ -58,7 +60,7 @@ inline float32 b2InvSqrt(float32 x)
 }
 
 #define	b2Sqrt(x)	std::sqrt(x)
-#define	b2Atan2(y, x)	std::atan2(y, x)
+#define	b2Atan2(y, x)	TrigTables::atan2(y, x)
 
 /// A 2D column vector.
 struct b2Vec2
@@ -315,16 +317,16 @@ struct b2Rot
 	explicit b2Rot(float32 angle)
 	{
 		/// TODO_ERIN optimize
-		s = sinf(angle);
-		c = cosf(angle);
+		s = TrigTables::sin(angle);
+		c = TrigTables::cos(angle);
 	}
 
 	/// Set using an angle in radians.
 	void Set(float32 angle)
 	{
 		/// TODO_ERIN optimize
-		s = sinf(angle);
-		c = cosf(angle);
+		s = TrigTables::sin(angle);
+		c = TrigTables::cos(angle);
 	}
 
 	/// Set to the identity rotation
